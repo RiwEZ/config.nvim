@@ -1,3 +1,5 @@
+if vim.g.vscode then
+else
 --[[
 
 =====================================================================
@@ -169,6 +171,18 @@ require('lazy').setup({
     },
     build = ":TSUpdate",
   },
+  {
+    'ThePrimeagen/harpoon',
+    dependencies = {
+      'nvim-lua/plenary.nvim'
+    }
+  },
+  {
+    'zbirenbaum/copilot.lua'
+  },
+  {
+    'kevinhwang91/nvim-ufo', dependencies = 'kevinhwang91/promise-async'
+  },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -189,6 +203,9 @@ require('lazy').setup({
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
+
+-- Set relative line
+vim.wo.relativenumber = true
 
 -- Set highlight on search
 vim.o.hlsearch = false
@@ -287,7 +304,7 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'javascript', 'vimdoc', 'vim' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = false,
@@ -410,7 +427,7 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
+  tsserver = {},
 
   lua_ls = {
     Lua = {
@@ -427,6 +444,12 @@ require('neodev').setup()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
+-- ufo
+capabilities.textDocument.foldingRange = {
+    dynamicRegistration = false,
+    lineFoldingOnly = true
+}
+
 -- Ensure the servers above are installed
 local mason_lspconfig = require 'mason-lspconfig'
 
@@ -436,7 +459,7 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup_handlers {
   function(server_name)
-    require('lspconfig')[server_name].setup {
+   require('lspconfig')[server_name].setup {
       capabilities = capabilities,
       on_attach = on_attach,
       settings = servers[server_name],
@@ -490,6 +513,74 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+  -- Better vertical movement
+  vim.keymap.set('n', '<C-d>', '<C-d>zz')
+  vim.keymap.set('n', '<C-u>', '<C-u>zz')
+
+  -- Back to netrw
+  vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
+
+  -- Some additionl settings
+  vim.opt.scrolloff = 8
+  vim.opt.updatetime = 50
+
+  -- harpoon
+  local mark = require('harpoon.mark')
+  local ui = require('harpoon.ui')
+  vim.keymap.set('n', '<leader>b', mark.add_file)
+  vim.keymap.set('n', '<C-e>', ui.toggle_quick_menu)
+
+  -- ufo
+  vim.o.foldcolumn = '1' -- '0' is not bad
+  vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+  vim.o.foldlevelstart = 99
+  vim.o.foldenable = true
+
+  vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
+  vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+
+  -- Option 2: nvim lsp as LSP client
+  -- Tell the server the capability of foldingRange,
+  -- Neovim hasn't added foldingRange to default capabilities, users must add it manually
+  require('ufo').setup()
+
+  -- copilot
+  require('copilot').setup({
+  panel = {
+    enabled = true,
+    auto_refresh = true,
+    layout = {
+      position = "bottom", -- | top | left | right
+      ratio = 0.4
+    },
+  },
+  suggestion = {
+    enabled = true,
+    auto_trigger = true,
+    debounce = 75,
+    keymaps = {
+      accept = false,
+    },
+  },
+  filetypes = {
+    help = false,
+    gitcommit = false,
+    gitrebase = false,
+    hgcommit = false,
+    ['*'] = true,
+  },
+  copilot_node_command = 'node', -- Node.js version must be > 16.x
+  server_opts_overrides = {},
+  })
+
+  vim.keymap.set('i', '<Tab>', function()
+  if require("copilot.suggestion").is_visible() then
+    require("copilot.suggestion").accept()
+  else
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Tab>", true, false, true), "n", false)
+  end
+  end, { desc = "Super Tab" })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+end
