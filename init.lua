@@ -183,6 +183,9 @@ require('lazy').setup({
   {
     'kevinhwang91/nvim-ufo', dependencies = 'kevinhwang91/promise-async'
   },
+  {
+    'MunifTanjim/prettier.nvim', dependencies = 'jose-elias-alvarez/null-ls.nvim'
+  },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -226,6 +229,11 @@ require('telescope').setup {
       },
     },
   },
+  pickers = {
+    live_grep = {
+      theme = "ivy"
+    }
+  }
 }
 
 -- Enable telescope fzf native, if installed
@@ -484,6 +492,7 @@ require('copilot').setup({
 })
 
 require('keymaps')
+require('autoformat')
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
