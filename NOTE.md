@@ -1,22 +1,16 @@
 
-# Steps for my dev experience
+# Fish Setup
 
 - Install `fish` shell, and config it
 - Use `Fira Code` font
 - Install `oh-my-fish` and `bobthefish` theme
 - wsl command `wsl -d Ubuntu-20.04 fish`
 
+# TMUX
+- Follow the guide in this https://github.com/tmux-plugins/tpm
+- Copy `.tmux.conf` to `~`
 
-.tmux.conf
+# NvChad
+- Install NvChad by following https://nvchad.com/docs/quickstart/install
+- Copy `custom` folder to `~/.conf/nvim/lua/custom`
 
-```
-set -g default-command /usr/bin/fish
-set -g default-shell /usr/bin/fish
-
-set-option -ga terminal-overrides ",xterm-256color:Tc"
-
-set-window-option -g mode-keys vi
-
-set -g mouse on
-
-```
