@@ -105,7 +105,7 @@ require("lazy").setup({
       {
         "<C-n>",
         function()
-          require("neo-tree.command").execute({ toggle = true, })
+          require("neo-tree.command").execute({ toggle = true })
         end,
         desc = "Explorer NeoTree (root dir)",
       },
@@ -146,9 +146,10 @@ require("lazy").setup({
     end,
   },
   {
-    'kevinhwang91/nvim-ufo', 
-    dependencies = {'kevinhwang91/promise-async'}
-  }
+    'kevinhwang91/nvim-ufo',
+    dependencies = { 'kevinhwang91/promise-async' },
+    event = "VeryLazy",
+  },
 })
 
 require('remap')
