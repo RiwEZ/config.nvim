@@ -3,12 +3,25 @@ vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle)
 
 -- lualine
 require('lualine').setup({
+  sections = {
+    lualine_c = {
+      require('lsp-progress').progress
+    }
+  },
   options = {
     theme = "auto",
     globalstatus = true,
     disabled_filetypes = { statusline = { "dashboard", "alpha" } },
   },
   extensions = { "neo-tree", "lazy" },
+})
+
+-- listen lsp-progress event and refresh lualine
+vim.api.nvim_create_augroup("lualine_augroup", { clear = true })
+vim.api.nvim_create_autocmd("User", {
+  group = "lualine_augroup",
+  pattern = "LspProgressStatusUpdated",
+  callback = require("lualine").refresh,
 })
 
 -- trouble
@@ -22,8 +35,16 @@ local null_ls = require('null-ls')
 
 null_ls.setup({
   sources = {
-    null_ls.builtins.formatting.prettierd,
-    null_ls.builtins.diagnostics.eslint_d,
+    null_ls.builtins.diagnostics.spectral,
+
+    null_ls.builtins.formatting.prettierd.with({
+      extra_filetypes = { "svelte" }
+    }),
+    null_ls.builtins.diagnostics.eslint_d.with({
+      extra_filetypes = { "svelte" }
+    }),
+
+    null_ls.builtins.diagnostics.pylint
   },
 })
 

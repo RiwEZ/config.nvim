@@ -112,7 +112,18 @@ require("lazy").setup({
     }
   },
   {
+    'linrongbin16/lsp-progress.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lsp-progress').setup()
+    end
+  },
+  {
     "nvim-lualine/lualine.nvim",
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+      'linrongbin16/lsp-progress.nvim',
+    },
     event = "VeryLazy",
   },
   {
@@ -124,7 +135,7 @@ require("lazy").setup({
     }
   },
   {
-    "jose-elias-alvarez/null-ls.nvim",
+    "nvimtools/none-ls.nvim",
   },
   {
     "lukas-reineke/indent-blankline.nvim"
