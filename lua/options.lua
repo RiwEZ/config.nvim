@@ -12,6 +12,7 @@ vim.opt.isfname:append("@-@")
 
 -- line number
 vim.opt.nu = true
+vim.opt.relativenumber = true
 
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
@@ -30,4 +31,7 @@ vim.opt.undofile = true
 vim.opt.termguicolors = true
 
 vim.opt.updatetime = 50
+
+-- column
+vim.opt.colorcolumn = "100"
 

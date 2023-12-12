@@ -27,7 +27,8 @@ require("mason-lspconfig").setup({
     "jedi_language_server",
     "gopls",
     "tailwindcss",
-    "ocamllsp"
+    "ocamllsp",
+    "clangd"
   },
   handlers = {
     lsp_zero.default_setup,

@@ -138,7 +138,9 @@ require("lazy").setup({
     "nvimtools/none-ls.nvim",
   },
   {
-    "lukas-reineke/indent-blankline.nvim"
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {}
   },
   {
     "stevearc/dressing.nvim",
@@ -161,6 +163,25 @@ require("lazy").setup({
     dependencies = { 'kevinhwang91/promise-async' },
     event = "VeryLazy",
   },
+  {
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    event = "InsertEnter",
+    build = ":Copilot auth",
+    opts = {
+      panel = { enabled = false },
+      suggestion = { enabled = false },
+    }
+  },
+  {
+    "zbirenbaum/copilot-cmp",
+    config = function()
+      require("copilot_cmp").setup()
+    end
+  },
+  {
+    "onsails/lspkind.nvim",
+  }
 })
 
 require('remap')

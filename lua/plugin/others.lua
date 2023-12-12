@@ -69,6 +69,13 @@ require('ufo').setup({
 
 require('neo-tree').setup({
   filesystem = {
-    follow_current_file = { enabled = true }
+    follow_current_file = { enabled = true },
+    use_libuv_file_watcher = true
   }
+})
+
+-- indent line
+require("ibl").setup({
+  scope = { enabled = false },
+  indent = { char = "│" },
 })
