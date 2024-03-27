@@ -184,6 +184,28 @@ require("lazy").setup({
 	{ "folke/neodev.nvim", opts = {} },
 	{
 		"stevearc/conform.nvim",
+		dependencies = { "mason.nvim" },
+		event = { "BufWritePre" },
+		cmd = { "ConformInfo" },
+		keys = {
+			{
+				"<leader>fm",
+				function()
+					require("conform").format({ timeout_ms = 3000 })
+				end,
+				mode = "n",
+				desc = "Format current buffer",
+			},
+		},
+		opts = {
+			formatters_by_ft = {
+				lua = { "stylua" },
+				javascript = { { "prettierd", "prettier" } },
+				svelte = { { "prettierd", "prettier" } },
+				rust = { "rustfmt" },
+				go = { "gofmt" },
+			},
+		},
 	},
 })
 
@@ -192,7 +214,6 @@ require("options")
 require("plugin/color")
 require("plugin/telescope")
 require("plugin/treesitter")
-require("plugin/formatter")
 require("plugin/lsp")
 require("plugin/autocomplete")
 require("plugin/others")
