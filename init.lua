@@ -109,19 +109,19 @@ require("lazy").setup({
 				desc = "Explorer NeoTree (root dir)",
 			},
 		},
-	},
-	{
-		"linrongbin16/lsp-progress.nvim",
-		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
-			require("lsp-progress").setup()
+			require("neo-tree").setup({
+				filesystem = {
+					follow_current_file = { enabled = true },
+					-- use_libuv_file_watcher = true,
+				},
+			})
 		end,
 	},
 	{
 		"nvim-lualine/lualine.nvim",
 		dependencies = {
 			"nvim-tree/nvim-web-devicons",
-			"linrongbin16/lsp-progress.nvim",
 		},
 		event = "VeryLazy",
 	},
@@ -134,12 +134,30 @@ require("lazy").setup({
 		},
 	},
 	{
-		"nvimtools/none-ls.nvim",
-	},
-	{
 		"lukas-reineke/indent-blankline.nvim",
+		opts = {
+			indent = {
+				char = "│",
+				tab_char = "│",
+			},
+			scope = { enabled = false },
+			exclude = {
+				filetypes = {
+					"help",
+					"alpha",
+					"dashboard",
+					"neo-tree",
+					"Trouble",
+					"trouble",
+					"lazy",
+					"mason",
+					"notify",
+					"toggleterm",
+					"lazyterm",
+				},
+			},
+		},
 		main = "ibl",
-		opts = {},
 	},
 	{
 		"stevearc/dressing.nvim",
@@ -201,12 +219,17 @@ require("lazy").setup({
 			formatters_by_ft = {
 				lua = { "stylua" },
 				javascript = { { "prettierd", "prettier" } },
+        typescript = { { "prettierd", "prettier" } },
 				svelte = { { "prettierd", "prettier" } },
+        astro = { { "prettierd", "prettier" } },
+        css = { { "prettierd", "prettier" } },
 				rust = { "rustfmt" },
 				go = { "gofmt" },
 			},
+      log_level = vim.log.levels.INFO,
 		},
 	},
+	require("plugin/linter"),
 })
 
 require("remap")
