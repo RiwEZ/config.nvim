@@ -19,6 +19,11 @@ lspkind.init({
 vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
 
 cmp.setup({
+	snippet = {
+		expand = function(args)
+			require("luasnip").lsp_expand(args.body)
+		end,
+	},
 	mapping = cmp.mapping.preset.insert({
 		["<Tab>"] = cmp.mapping(function(fallback)
 			if cmp.visible() and has_words_before() then
@@ -41,10 +46,10 @@ cmp.setup({
 		["<CR>"] = cmp.mapping.confirm({ select = false }),
 	}),
 	sources = {
-		{ name = "copilot", group_index = 2 },
-		{ name = "nvim_lsp", group_index = 2 },
-		{ name = "path", group_index = 2 },
-		{ name = "luasnip", group_index = 2 },
+		{ name = "nvim_lsp" },
+		{ name = "luasnip" },
+		{ name = "copilot" },
+		{ name = "path" },
 	},
 	formatting = {
 		format = lspkind.cmp_format({

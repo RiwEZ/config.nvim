@@ -49,10 +49,6 @@ require("lazy").setup({
 		build = ":TSUpdate",
 	},
 	{
-		"ThePrimeagen/harpoon",
-		dependencies = { "nvim-lua/plenary.nvim" },
-	},
-	{
 		"mbbill/undotree",
 	},
 	{ "VonHeikemen/lsp-zero.nvim", branch = "v3.x" },
@@ -69,7 +65,41 @@ require("lazy").setup({
 	{
 		"hrsh7th/nvim-cmp",
 		dependencies = {
-			{ "L3MON4D3/LuaSnip" },
+			{
+				"L3MON4D3/LuaSnip",
+				build = "make install_jsregexp",
+				config = function()
+					local ls = require("luasnip")
+					local t = ls.text_node
+					local i = ls.insert_node
+					local fmt = require("luasnip.extras.fmt").fmt
+					local rep = require("luasnip.extras").rep
+					local s = ls.snippet
+
+					-- markdown figure for my blog
+					ls.add_snippets("markdown", {
+						s({
+							trig = "figure",
+							trigEngine = "pattern",
+						}, {
+							t({
+								"<figure>",
+								'<img src="" loading="lazy" />',
+								"<figcaption>",
+								"<center>",
+							}),
+							i(1, "Lorem"),
+							t({
+								"</center>",
+								"</figcaption>",
+								"</figure>",
+							}),
+						}),
+						s("br", t({ "<br>", "" })),
+					})
+				end,
+			},
+			{ "saadparwaiz1/cmp_luasnip" },
 		},
 	},
 	{
@@ -219,14 +249,14 @@ require("lazy").setup({
 			formatters_by_ft = {
 				lua = { "stylua" },
 				javascript = { { "prettierd", "prettier" } },
-        typescript = { { "prettierd", "prettier" } },
+				typescript = { { "prettierd", "prettier" } },
 				svelte = { { "prettierd", "prettier" } },
-        astro = { { "prettierd", "prettier" } },
-        css = { { "prettierd", "prettier" } },
+				astro = { { "prettierd", "prettier" } },
+				css = { { "prettierd", "prettier" } },
 				rust = { "rustfmt" },
 				go = { "gofmt" },
 			},
-      log_level = vim.log.levels.INFO,
+			log_level = vim.log.levels.INFO,
 		},
 	},
 	require("plugin/linter"),
