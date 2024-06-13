@@ -19,10 +19,13 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local js_fmt = { { "biome", "prettierd", "prettier" } }
+
 require("lazy").setup({
 	{
 		"nvim-telescope/telescope.nvim",
-		tag = "0.1.3",
+		event = "VimEnter",
+		tag = "0.1.x",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			{
@@ -33,6 +36,7 @@ require("lazy").setup({
 				end,
 			},
 		},
+		config = require("plugin/telescope"),
 	},
 	{
 		"folke/tokyonight.nvim",
@@ -51,10 +55,10 @@ require("lazy").setup({
 	{
 		"mbbill/undotree",
 	},
+	-- LSP Support
 	{ "VonHeikemen/lsp-zero.nvim", branch = "v3.x" },
 	{ "williamboman/mason.nvim" },
 	{ "williamboman/mason-lspconfig.nvim" },
-	-- LSP Support
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
@@ -68,12 +72,14 @@ require("lazy").setup({
 			{
 				"L3MON4D3/LuaSnip",
 				build = "make install_jsregexp",
+				dependencies = {
+					"rafamadriz/friendly-snippets",
+				},
 				config = function()
+					require("luasnip.loaders.from_vscode").lazy_load()
 					local ls = require("luasnip")
 					local t = ls.text_node
 					local i = ls.insert_node
-					local fmt = require("luasnip.extras.fmt").fmt
-					local rep = require("luasnip.extras").rep
 					local s = ls.snippet
 
 					-- markdown figure for my blog
@@ -85,6 +91,25 @@ require("lazy").setup({
 							t({
 								"<figure>",
 								'<img src="" loading="lazy" />',
+								"<figcaption>",
+								"<center>",
+							}),
+							i(1, "Lorem"),
+							t({
+								"</center>",
+								"</figcaption>",
+								"</figure>",
+							}),
+						}),
+						s({
+							trig = "video",
+							trigEngine = "pattern",
+						}, {
+							t({
+								"<figure>",
+								'<video controls="true" />',
+								'<source src="" type="video/mp4">',
+								"</source>",
 								"<figcaption>",
 								"<center>",
 							}),
@@ -248,27 +273,43 @@ require("lazy").setup({
 		opts = {
 			formatters_by_ft = {
 				lua = { "stylua" },
-				javascript = { { "prettierd", "prettier" } },
-				typescript = { { "prettierd", "prettier" } },
-				svelte = { { "prettierd", "prettier" } },
+				javascript = js_fmt,
+				typescript = js_fmt,
+				typescriptreact = js_fmt,
+				svelte = js_fmt,
 				astro = { { "prettierd", "prettier" } },
-				css = { { "prettierd", "prettier" } },
+				css = js_fmt,
 				rust = { "rustfmt" },
 				go = { "gofmt" },
+				proto = { "buf" },
+				jsonc = js_fmt,
 			},
 			log_level = vim.log.levels.INFO,
 		},
 	},
 	require("plugin/linter"),
+	{
+		"ThePrimeagen/harpoon",
+		branch = "harpoon2",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		config = function()
+			local harpoon = require("harpoon")
+			harpoon:setup()
+
+			vim.keymap.set("n", "<leader>b", function()
+				harpoon:list():add()
+			end)
+			vim.keymap.set("n", "<C-e>", function()
+				harpoon.ui:toggle_quick_menu(harpoon:list())
+			end)
+		end,
+	},
 })
 
 require("remap")
 require("options")
 require("plugin/color")
-require("plugin/telescope")
 require("plugin/treesitter")
 require("plugin/lsp")
 require("plugin/autocomplete")
 require("plugin/others")
-require("which-key")
-require("gitsigns").setup()

@@ -18,10 +18,12 @@ require("nvim-treesitter.configs").setup({
 		"ocaml",
 		"css",
 		"cpp",
+		"templ",
 	},
 	auto_install = false,
 	highlight = { enable = true, additional_vim_regex_highlighting = false },
 	indent = { enable = true },
+	sync_install = false,
 
 	move = {
 		enable = true,
@@ -40,6 +42,14 @@ require("nvim-treesitter.configs").setup({
 		},
 	},
 })
+
+vim.filetype.add({
+	extension = {
+		templ = "templ",
+	},
+})
+
+vim.treesitter.language.register("templ", "templ")
 
 --[[
 local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
