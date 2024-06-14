@@ -306,8 +306,6 @@ require("lazy").setup({
 	},
 })
 
-require("remap")
-require("options")
 require("plugin/color")
 require("plugin/treesitter")
 require("plugin/lsp")
