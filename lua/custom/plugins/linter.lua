@@ -1,3 +1,13 @@
+local linters_by_ft = {
+	fish = { "fish" },
+	svelte = { "eslint_d" },
+	javascript = { "eslint_d" },
+	typescript = { "eslint_d" },
+	typescriptreact = { "custom_biomejs" },
+	python = { "pylint" },
+	proto = { "buf" },
+}
+
 return {
 	"mfussenegger/nvim-lint",
 	event = "VeryLazy",
@@ -15,8 +25,7 @@ return {
 			name = "custom_biomejs",
 			cmd = function()
 				local dirname = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
-				local node_folders =
-					vim.fs.find("node_modules/.bin/biome", { upward = true, path = dirname })
+				local node_folders = vim.fs.find("node_modules/.bin/biome", { upward = true, path = dirname })
 				for _, result in ipairs(node_folders) do
 					if vim.fn.executable(result) == 1 then
 						return result
@@ -62,15 +71,7 @@ return {
 			end,
 		}
 
-		lint.linters_by_ft = {
-			fish = { "fish" },
-			svelte = { "eslint_d" },
-			javascript = { "eslint_d" },
-			typescript = { "eslint_d" },
-			typescriptreact = { "custom_biomejs" },
-			python = { "pylint" },
-			proto = { "buf" },
-		}
+		lint.linters_by_ft = linters_by_ft
 
 		function M.debounce(ms, fn)
 			local timer = vim.uv.new_timer()
