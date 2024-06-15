@@ -1,3 +1,13 @@
+local linters_by_ft = {
+	fish = { "fish" },
+	svelte = { "eslint_d" },
+	javascript = { "eslint_d" },
+	typescript = { "eslint_d" },
+	typescriptreact = { "custom_biomejs" },
+	python = { "pylint" },
+	proto = { "buf" },
+}
+
 return {
 	"mfussenegger/nvim-lint",
 	event = "VeryLazy",
@@ -8,13 +18,60 @@ return {
 		local M = {}
 
 		local lint = require("lint")
-		lint.linters_by_ft = {
-			fish = { "fish" },
-			svelte = { "eslint_d" },
-			javascript = { "eslint_d" },
-			typescript = { "eslint_d" },
-			python = { "pylint" },
+
+		-- custom biomejs
+		-- based on https://github.com/mfussenegger/nvim-lint/blob/master/lua/lint/linters/biomejs.lua
+		lint.linters.custom_biomejs = {
+			name = "custom_biomejs",
+			cmd = function()
+				local dirname = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+				local node_folders = vim.fs.find("node_modules/.bin/biome", { upward = true, path = dirname })
+				for _, result in ipairs(node_folders) do
+					if vim.fn.executable(result) == 1 then
+						return result
+					end
+				end
+				return "biome"
+			end,
+			args = { "lint" },
+			stdin = false,
+			ignore_exitcode = true,
+			stream = "both",
+			parser = function(output)
+				local diagnostics = {}
+				local fetch_message = false
+				local lnum, col, code, message
+				for _, line in ipairs(vim.fn.split(output, "\n")) do
+					if fetch_message then
+						_, _, message = string.find(line, "%s×(.+)")
+
+						if message then
+							message = (message):gsub("^%s+×%s*", "")
+
+							table.insert(diagnostics, {
+								source = "biomejs",
+								lnum = tonumber(lnum) - 1,
+								col = tonumber(col),
+								message = message,
+								code = code,
+							})
+
+							fetch_message = false
+						end
+					else
+						_, _, lnum, col, code = string.find(line, "[^:]+:(%d+):(%d+)%s([%a%/]+)")
+
+						if lnum then
+							fetch_message = true
+						end
+					end
+				end
+
+				return diagnostics
+			end,
 		}
+
+		lint.linters_by_ft = linters_by_ft
 
 		function M.debounce(ms, fn)
 			local timer = vim.uv.new_timer()
