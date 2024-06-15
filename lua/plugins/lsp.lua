@@ -58,6 +58,7 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.filetype.add({
 	extension = {
 		tsp = "tsp",
+		typst = "typst",
 	},
 })
 
@@ -77,4 +78,3 @@ vim.api.nvim_create_autocmd("FileType", {
 		vim.lsp.buf_attach_client(0, client)
 	end,
 })
-

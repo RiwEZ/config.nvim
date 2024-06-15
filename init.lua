@@ -36,7 +36,7 @@ require("lazy").setup({
 				end,
 			},
 		},
-		config = require("plugin/telescope"),
+		config = require("plugins/telescope"),
 	},
 	{
 		"folke/tokyonight.nvim",
@@ -287,7 +287,7 @@ require("lazy").setup({
 			log_level = vim.log.levels.INFO,
 		},
 	},
-	require("plugin/linter"),
+	require("plugins/linter"),
 	{
 		"ThePrimeagen/harpoon",
 		branch = "harpoon2",
@@ -306,8 +306,8 @@ require("lazy").setup({
 	},
 })
 
-require("plugin/color")
-require("plugin/treesitter")
-require("plugin/lsp")
-require("plugin/autocomplete")
-require("plugin/others")
+require("plugins/color")
+require("plugins/treesitter")
+require("plugins/lsp")
+require("plugins/autocomplete")
+require("plugins/others")
