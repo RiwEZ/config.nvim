@@ -96,12 +96,5 @@ return {
         end
       })
     --]]
-
-		vim.filetype.add({
-			extension = {
-				tsp = "tsp",
-				typst = "typst",
-			},
-		})
 	end,
 }

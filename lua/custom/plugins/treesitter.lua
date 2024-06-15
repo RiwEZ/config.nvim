@@ -8,11 +8,6 @@ return {
 	lazy = false,
 	config = function()
 		-- Additional file types
-		vim.filetype.add({
-			extension = {
-				templ = "templ",
-			},
-		})
 		vim.treesitter.language.register("templ", "templ")
 
 		-- Tree sitter
