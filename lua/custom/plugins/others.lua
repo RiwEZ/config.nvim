@@ -21,19 +21,20 @@ return {
 	{
 		"folke/trouble.nvim",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
-		opts = {
-			use_diagnostic_signs = false,
+		opts = {},
+		cmd = "Trouble",
+		keys = {
+			{
+				"<leader>q",
+				"<cmd>Trouble diagnostics toggle focus=false filter.buf=0<cr>",
+				desc = "Diagnostics (Trouble)",
+			},
+			{
+				"<leader>xw",
+				"<cmd>Trouble diagnostics toggle focus=false<cr>",
+				desc = "Workspace Diagnostics (Trouble)",
+			},
 		},
-		config = function()
-			local trouble = require("trouble")
-
-			vim.keymap.set("n", "<leader>q", function()
-				trouble.open("document_diagnostics")
-			end)
-			vim.keymap.set("n", "<leader>xw", function()
-				trouble.open("workspace_diagnostics")
-			end)
-		end,
 	},
 	{
 		"nvim-neo-tree/neo-tree.nvim",
@@ -133,14 +134,8 @@ return {
 		dependencies = { "kevinhwang91/promise-async" },
 		event = "VeryLazy",
 		config = function()
-			-- fold
-			vim.o.foldcolumn = "1" -- '0' is not bad
-			vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
-			vim.o.foldlevelstart = 99
-			vim.o.foldenable = true
-
 			require("ufo").setup({
-				provider_selector = function(bufnr, filetype, buftype)
+				provider_selector = function()
 					return { "treesitter", "indent" }
 				end,
 			})

@@ -20,17 +20,23 @@ vim.opt.smartindent = true
 vim.opt.wrap = false
 vim.o.breakindent = true
 
--- Undo shits 
+-- Undo shits
 vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.undofile = true
 
--- Colors 
+-- Colors
 vim.opt.termguicolors = true
 
 -- Column
 vim.opt.colorcolumn = "100"
+
+-- Fold
+vim.o.foldcolumn = "1" -- '0' is not bad
+vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
 
 -- Others
 vim.opt.updatetime = 50

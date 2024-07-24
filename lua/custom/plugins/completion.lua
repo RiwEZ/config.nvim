@@ -43,7 +43,7 @@ return {
 							"<figure>",
 							'<video controls="true" />',
 							'<source src="" type="video/mp4">',
-							"</source>",
+							"</video>",
 							"<figcaption>",
 							"<center>",
 						}),
@@ -125,16 +125,44 @@ return {
 				["<CR>"] = cmp.mapping.confirm({ select = false }),
 			}),
 			sources = {
-				{ name = "nvim_lsp" },
+				{
+					name = "nvim_lsp",
+
+					-- https://github.com/vuejs/language-tools/discussions/4495
+					---@param entry cmp.Entry
+					---@param ctx cmp.Context
+					entry_filter = function(entry, ctx)
+						if ctx.filetype ~= "vue" then
+							return true
+						end
+						local cursor_before_line = ctx.cursor_before_line
+						if cursor_before_line:sub(-1) == "@" then
+							return entry.completion_item.label:match("^@")
+						elseif cursor_before_line:sub(-1) == ":" then
+							return entry.completion_item.label:match("^:")
+								and not entry.completion_item.label:match("^:on-")
+						else
+							return true
+						end
+					end,
+				},
 				{ name = "luasnip" },
 				{ name = "copilot" },
 				{ name = "path" },
+				{ name = "buffer" },
 			},
 			formatting = {
 				format = lspkind.cmp_format({
 					maxwidth = 50,
 					ellipsis_char = "...",
 				}),
+			},
+		})
+
+		cmp.setup.filetype({ "sql" }, {
+			sources = {
+				{ name = "vim-dadbod-completion" },
+				{ name = "buffer" },
 			},
 		})
 	end,

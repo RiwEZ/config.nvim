@@ -5,17 +5,19 @@ local formatters_by_ft = {
 	typescript = js_fmt,
 	typescriptreact = js_fmt,
 	svelte = js_fmt,
+	vue = { { "prettierd", "prettier" } },
 	astro = { { "prettierd", "prettier" } },
 	css = js_fmt,
 	rust = { "rustfmt" },
 	go = { "gofmt" },
 	proto = { "buf" },
 	jsonc = js_fmt,
+	templ = { "templ" },
 }
 
 return {
 	"neovim/nvim-lspconfig",
-  lazy = false,
+	lazy = false,
 	dependencies = {
 		{ "folke/neodev.nvim", opts = {} },
 		{ "VonHeikemen/lsp-zero.nvim", branch = "v3.x", lazy = false },
@@ -63,6 +65,7 @@ return {
 		end)
 
 		require("mason").setup({})
+
 		require("mason-lspconfig").setup({
 			ensure_installed = {
 				"lua_ls",
@@ -77,6 +80,36 @@ return {
 				lsp_zero.default_setup,
 			},
 		})
+
+		local lspconfig = require("lspconfig")
+
+		local mason_registry = require("mason-registry")
+		local vue_language_server_path = mason_registry.get_package("vue-language-server"):get_install_path()
+			.. "/node_modules/@vue/language-server"
+
+		lspconfig.tsserver.setup({
+			init_options = {
+				plugins = {
+					{
+						name = "@vue/typescript-plugin",
+						location = vue_language_server_path,
+						languages = { "vue" },
+					},
+				},
+			},
+			filetypes = {
+				"javascript",
+				"javascriptreact",
+				"javascript.jsx",
+				"typescript",
+				"typescriptreact",
+				"typescript.tsx",
+				"vue",
+				"svelte",
+			},
+		})
+
+		lspconfig.volar.setup({})
 
 		--[[
       local client = vim.lsp.start_client({
