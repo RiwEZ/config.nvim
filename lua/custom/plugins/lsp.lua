@@ -48,8 +48,7 @@ return {
 
 		local lsp_zero = require("lsp-zero")
 		lsp_zero.extend_lspconfig()
-
-		lsp_zero.on_attach(function(client, bufnr)
+		lsp_zero.on_attach(function(_, bufnr)
 			-- see :help lsp-zero-keybindings
 			-- to learn the available actions
 			lsp_zero.default_keymaps({ buffer = bufnr })
@@ -71,63 +70,67 @@ return {
 				"lua_ls",
 				"rust_analyzer",
 				"tsserver",
-				"svelte",
-				"jedi_language_server",
 				"gopls",
-				"tailwindcss",
 			},
 			handlers = {
 				lsp_zero.default_setup,
+				svelte = function()
+					-- https://github.com/sveltejs/language-tools/issues/2008
+					local capabilities = lsp_zero.get_capabilities()
+
+					-- create a new capabilities with didChangeWatchedFiles that is not referenced from the lsp_zero one
+					local copied_capabilities = {}
+					for k, v in pairs(capabilities) do
+						if k == "workspace" then
+							local workspace = { didChangeWatchedFiles = false }
+							for _k, _v in pairs(capabilities[k]) do
+								if _k ~= "didChangeWatchedFiles" then
+									workspace[_k] = _v
+								end
+							end
+							copied_capabilities[k] = workspace
+						else
+							copied_capabilities[k] = v
+						end
+					end
+
+					require("lspconfig").svelte.setup({
+						capabilities = copied_capabilities,
+					})
+				end,
+				volar = lsp_zero.noop,
+				tsserver = function()
+					local lspconfig = require("lspconfig")
+
+					local mason_registry = require("mason-registry")
+					local vue_language_server_path = mason_registry
+						.get_package("vue-language-server")
+						:get_install_path() .. "/node_modules/@vue/language-server"
+
+					lspconfig.tsserver.setup({
+						init_options = {
+							plugins = {
+								{
+									name = "@vue/typescript-plugin",
+									location = vue_language_server_path,
+									languages = { "vue" },
+								},
+							},
+						},
+						filetypes = {
+							"javascript",
+							"javascriptreact",
+							"javascript.jsx",
+							"typescript",
+							"typescriptreact",
+							"typescript.tsx",
+							"vue",
+						},
+					})
+
+					lspconfig.volar.setup({})
+				end,
 			},
 		})
-
-		local lspconfig = require("lspconfig")
-
-		local mason_registry = require("mason-registry")
-		local vue_language_server_path = mason_registry.get_package("vue-language-server"):get_install_path()
-			.. "/node_modules/@vue/language-server"
-
-		lspconfig.tsserver.setup({
-			init_options = {
-				plugins = {
-					{
-						name = "@vue/typescript-plugin",
-						location = vue_language_server_path,
-						languages = { "vue" },
-					},
-				},
-			},
-			filetypes = {
-				"javascript",
-				"javascriptreact",
-				"javascript.jsx",
-				"typescript",
-				"typescriptreact",
-				"typescript.tsx",
-				"vue",
-				"svelte",
-			},
-		})
-
-		lspconfig.volar.setup({})
-
-		--[[
-      local client = vim.lsp.start_client({
-        name = "open_api_lsp",
-        cmd = { "/home/tanat/projects/open-api-lsp/open-api-lsp" },
-      })
-
-      if not client then
-        vim.notify "smthing wrong"
-        return
-      end
-
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "yaml",
-        callback = function ()
-          vim.lsp.buf_attach_client(0, client)
-        end
-      })
-    --]]
 	end,
 }
