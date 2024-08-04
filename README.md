@@ -8,7 +8,6 @@
 - Follow the guide in this https://github.com/tmux-plugins/tpm
 - Copy `.tmux.conf` to `~`
 
-
 # Updating 
 
 ```
