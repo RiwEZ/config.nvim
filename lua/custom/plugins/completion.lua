@@ -62,8 +62,6 @@ return {
   },
   config = function()
     local cmp = require("cmp")
-    local luasnip = require("luasnip")
-    local cmp_action = require("lsp-zero").cmp_action()
 
     local has_words_before = function()
       if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then
@@ -91,8 +89,6 @@ return {
         ["<Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() and has_words_before() then
             cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
-          elseif luasnip.expand_or_locally_jumpable() then
-            cmp_action.luasnip_jump_forward()
           else
             fallback()
           end
@@ -100,8 +96,6 @@ return {
         ["<S-Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_prev_item()
-          elseif luasnip.locally_jumpable(-1) then
-            cmp_action.luasnip_jump_backward()
           else
             fallback()
           end
@@ -139,13 +133,6 @@ return {
           maxwidth = 50,
           ellipsis_char = "...",
         }),
-      },
-    })
-
-    cmp.setup.filetype({ "sql" }, {
-      sources = {
-        { name = "vim-dadbod-completion" },
-        { name = "buffer" },
       },
     })
   end,

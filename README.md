@@ -1,3 +1,10 @@
+# Nvim Version
+```
+NVIM v0.11.0-dev-1357+gcc38630d39
+Build type: RelWithDebInfo
+LuaJIT 2.1.1732813678
+```
+
 # Fish Setup
 - Install `fish` shell, and config it
 - Use `Fira Code` font

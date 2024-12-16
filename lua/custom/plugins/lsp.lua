@@ -22,7 +22,6 @@ return {
   lazy = false,
   dependencies = {
     { "folke/neodev.nvim",                opts = {} },
-    { "VonHeikemen/lsp-zero.nvim",        branch = "v3.x", lazy = false },
     { "williamboman/mason.nvim" },
     { "williamboman/mason-lspconfig.nvim" },
     {
@@ -34,7 +33,7 @@ return {
           "<leader>fm",
           function()
             require("conform").format(
-              { async = true, timeout_ms = 3000, lsp_fallback = true },
+              { async = true, timeout_ms = 3000, lsp_fallback = true, stop_after_first = true },
               function(err)
                 if not err then
                   local mode = vim.api.nvim_get_mode().mode
@@ -55,26 +54,41 @@ return {
         log_level = vim.log.levels.INFO,
       },
     },
+    { 'hrsh7th/cmp-nvim-lsp' },
   },
   config = function()
     require("neodev").setup({})
 
-    local lsp_zero = require("lsp-zero")
-    lsp_zero.extend_lspconfig()
-    lsp_zero.on_attach(function(_, bufnr)
-      -- see :help lsp-zero-keybindings
-      -- to learn the available actions
-      lsp_zero.default_keymaps({ buffer = bufnr })
+    vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
+      vim.lsp.handlers.hover,
+      { border = 'rounded' }
+    )
+    vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
+      vim.lsp.handlers.signature_help,
+      { border = 'rounded' }
+    )
+    local lspconfig_defaults = require('lspconfig').util.default_config
+    lspconfig_defaults.capabilities = vim.tbl_deep_extend(
+      'force',
+      lspconfig_defaults.capabilities,
+      require('cmp_nvim_lsp').default_capabilities()
+    )
 
-      vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
-      vim.keymap.set("n", "<leader>f", vim.diagnostic.open_float)
-      vim.keymap.set("n", "gd", vim.lsp.buf.definition)
-      vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
-      vim.keymap.set("n", "gI", vim.lsp.buf.implementation)
-      vim.keymap.set("n", "go", vim.lsp.buf.type_definition)
-      vim.keymap.set("n", "gr", vim.lsp.buf.references)
-      vim.keymap.set("n", "gs", vim.lsp.buf.signature_help)
-    end)
+
+    vim.api.nvim_create_autocmd('LspAttach', {
+      callback = function(event)
+        local opts = { buffer = event.buf }
+        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+        vim.keymap.set("n", "<leader>f", vim.diagnostic.open_float, opts)
+        vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+        vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts)
+        vim.keymap.set("n", "go", vim.lsp.buf.type_definition, opts)
+        vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+        vim.keymap.set("n", "gs", vim.lsp.buf.signature_help, opts)
+      end,
+
+    })
 
     require("mason").setup({})
 
@@ -86,10 +100,12 @@ return {
         "gopls",
       },
       handlers = {
-        lsp_zero.default_setup,
+        function(server_name) -- default handler
+          require("lspconfig")[server_name].setup {}
+        end,
         svelte = function()
           -- https://github.com/sveltejs/language-tools/issues/2008
-          local capabilities = lsp_zero.get_capabilities()
+          local capabilities = lspconfig_defaults.capabilities
 
           -- create a new capabilities with didChangeWatchedFiles that is not referenced from the lsp_zero one
           local copied_capabilities = {}
@@ -111,7 +127,6 @@ return {
             capabilities = copied_capabilities,
           })
         end,
-        volar = lsp_zero.noop,
         ts_ls = function()
           local lspconfig = require("lspconfig")
 
@@ -144,7 +159,5 @@ return {
         end,
       },
     })
-
-    require('java').setup()
   end,
 }
