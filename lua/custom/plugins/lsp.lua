@@ -142,7 +142,6 @@ return {
           })
           lspconfig.volar.setup({})
         end,
-        java = require('lspconfig').jdtls.setup({})
       },
     })
 
