@@ -59,22 +59,6 @@ return {
 			end,
 		},
 		{ "saadparwaiz1/cmp_luasnip" },
-		{
-			"zbirenbaum/copilot.lua",
-			cmd = "Copilot",
-			event = "InsertEnter",
-			build = ":Copilot auth",
-			opts = {
-				panel = { enabled = false },
-				suggestion = { enabled = false },
-			},
-		},
-		{
-			"zbirenbaum/copilot-cmp",
-			config = function()
-				require("copilot_cmp").setup()
-			end,
-		},
 	},
 	config = function()
 		local cmp = require("cmp")
@@ -147,7 +131,6 @@ return {
 					end,
 				},
 				{ name = "luasnip" },
-				{ name = "copilot" },
 				{ name = "path" },
 				{ name = "buffer" },
 			},

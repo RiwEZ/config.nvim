@@ -13,6 +13,12 @@ return {
 		},
 	},
 	config = function()
+    require('telescope').setup {
+      defaults = {
+        path_display = { "smart" }
+      }
+    }
+
 		local t = require("telescope.builtin")
 		vim.keymap.set("n", "<leader>gf", t.git_files, {})
 		vim.keymap.set("n", "<leader>sf", t.find_files, {})

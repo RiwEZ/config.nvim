@@ -1,92 +1,37 @@
-local js_linters = { "eslint_d", "biomejs" }
-
-local linters_by_ft = {
-	fish = { "fish" },
-	svelte = js_linters,
-  vue = js_linters,
-	javascript = js_linters,
-	typescript = js_linters,
-	typescriptreact = js_linters,
-	python = { "pylint" },
-	proto = { "buf" },
-}
-
 return {
-	"mfussenegger/nvim-lint",
-	event = "VeryLazy",
-	opts = {
-		events = { "BufWritePost", "BufReadPost", "InsertLeave" },
-	},
-	config = function(_, opts)
-		local M = {}
+  "mfussenegger/nvim-lint",
+  event = "VeryLazy",
+  opts = {
+    events = { "BufWritePost", "BufReadPost" },
+  },
+  dependencies = {
+    "williamboman/mason.nvim",
+  },
+  config = function(_, opts)
+    local lint = require("lint")
 
-		local lint = require("lint")
+    lint.linters_by_ft = {
+      -- php = { "phpstan" },
+      javascript = { "eslint_d" },
+      go = { "golangcilint" },
+    }
 
-		local biomejs = lint.linters.biomejs
-		biomejs.cmd = function()
-			local dirname = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
-			local node_folders = vim.fs.find("node_modules/.bin/biome", { upward = true, path = dirname })
-			for _, result in ipairs(node_folders) do
-				if vim.fn.executable(result) == 1 then
-					return result
-				end
-			end
-			return "biome"
-		end
-    biomejs.condition = function (ctx)
-      return vim.fs.find({ "biome.json" }, { path = ctx.filename, upward = true })[1]
+    vim.api.nvim_create_autocmd(opts.events, {
+      group = vim.api.nvim_create_augroup("nvim-lint", { clear = true }),
+      callback = function() lint.try_lint() end,
+    })
+
+    local lint_progress = function()
+      local linters = lint.get_running()
+      if #linters == 0 then
+        return "󰦕"
+      end
+      return "󰦕 " .. table.concat(linters, ", ")
     end
 
-    local eslint_d = lint.linters.eslint_d
-    eslint_d.condition = function (ctx)
-      return vim.fs.find({ "eslint.config.js" }, { path = ctx.filename, upward = true })[1]
-    end
-
-		lint.linters_by_ft = linters_by_ft
-
-		function M.debounce(ms, fn)
-			local timer = vim.uv.new_timer()
-			return function(...)
-				local argv = { ... }
-				timer:start(ms, 0, function()
-					timer:stop()
-					vim.schedule_wrap(fn)(unpack(argv))
-				end)
-			end
-		end
-
-		function M.lint()
-			-- Use nvim-lint's logic first:
-			-- * checks if linters exist for the full filetype first
-			-- * otherwise will split filetype by "." and add all those linters
-			-- * this differs from conform.nvim which only uses the first filetype that has a formatter
-			local names = lint._resolve_linter_by_ft(vim.bo.filetype)
-
-			-- Add fallback linters.
-			if #names == 0 then
-				vim.list_extend(names, lint.linters_by_ft["_"] or {})
-			end
-
-			-- Add global linters.
-			vim.list_extend(names, lint.linters_by_ft["*"] or {})
-
-			-- Filter out linters that don't exist or don't match the condition.
-			local ctx = { filename = vim.api.nvim_buf_get_name(0) }
-			ctx.dirname = vim.fn.fnamemodify(ctx.filename, ":h")
-			names = vim.tbl_filter(function(name)
-				local linter = lint.linters[name]
-				return linter and not (type(linter) == "table" and linter.condition and not linter.condition(ctx))
-			end, names)
-
-			-- Run linters.
-			if #names > 0 then
-				lint.try_lint(names)
-			end
-		end
-
-		vim.api.nvim_create_autocmd(opts.events, {
-			group = vim.api.nvim_create_augroup("nvim-lint", { clear = true }),
-			callback = M.debounce(100, M.lint),
-		})
-	end,
+    vim.keymap.set("n", "<leader>l", function()
+      lint.try_lint()
+      print(lint_progress())
+    end)
+  end,
 }
