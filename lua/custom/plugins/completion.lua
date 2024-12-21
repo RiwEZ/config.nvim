@@ -78,7 +78,8 @@ return {
       jump = function(direction) require('luasnip').jump(direction) end,
     },
     sources = {
-      completion = { enabled_providers = { 'lsp', 'path', 'luasnip', 'buffer' } },
+      default = { 'lsp', 'path', 'luasnip', 'buffer' },
+      cmdline = {},
     },
   }
 }

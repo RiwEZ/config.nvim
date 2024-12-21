@@ -10,15 +10,25 @@ return {
   config = function(_, opts)
     local lint = require("lint")
 
+    local js_linters = { "eslint_d" }
     lint.linters_by_ft = {
       -- php = { "phpstan" },
-      javascript = { "eslint_d" },
       go = { "golangcilint" },
+      fish = { "fish" },
+      svelte = js_linters,
+      vue = js_linters,
+      javascript = js_linters,
+      typescript = js_linters,
+      typescriptreact = js_linters,
+      python = { "pylint" },
+      proto = { "buf" },
     }
 
     vim.api.nvim_create_autocmd(opts.events, {
       group = vim.api.nvim_create_augroup("nvim-lint", { clear = true }),
-      callback = function() lint.try_lint() end,
+      callback = function()
+        lint.try_lint()
+      end,
     })
 
     local lint_progress = function()
