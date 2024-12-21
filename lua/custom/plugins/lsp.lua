@@ -54,10 +54,10 @@ return {
         log_level = vim.log.levels.INFO,
       },
     },
-    { 'hrsh7th/cmp-nvim-lsp' },
+    { 'saghen/blink.cmp' }
   },
   config = function()
-    require("neodev").setup({})
+    require("neodev").setup()
 
     vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
       vim.lsp.handlers.hover,
@@ -67,13 +67,18 @@ return {
       vim.lsp.handlers.signature_help,
       { border = 'rounded' }
     )
+    vim.diagnostic.config({
+      float = {
+        border = 'rounded'
+      }
+    })
+
     local lspconfig_defaults = require('lspconfig').util.default_config
     lspconfig_defaults.capabilities = vim.tbl_deep_extend(
       'force',
       lspconfig_defaults.capabilities,
-      require('cmp_nvim_lsp').default_capabilities()
+      require('blink.cmp').get_lsp_capabilities(lspconfig_defaults.capabilities)
     )
-
 
     vim.api.nvim_create_autocmd('LspAttach', {
       callback = function(event)
