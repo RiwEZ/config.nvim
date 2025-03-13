@@ -1,6 +1,6 @@
 vim.filetype.add({
   extension = {
-    tsp = "tsp",
+    tsp = "typespec",
     typst = "typst",
     templ = "templ",
   },

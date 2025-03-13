@@ -14,7 +14,8 @@ local formatters_by_ft = {
   jsonc = js_fmt,
   templ = { "templ" },
   sql = { "sleek" },
-  json = { "jq" }
+  json = { "jq" },
+  python = { "black" }
 }
 
 return {
@@ -98,6 +99,7 @@ return {
     require("mason").setup({})
 
     require("mason-lspconfig").setup({
+      automatic_installation = false,
       ensure_installed = {
         "lua_ls",
         "rust_analyzer",
@@ -132,6 +134,15 @@ return {
             capabilities = copied_capabilities,
           })
         end,
+        volar = function()
+          require('lspconfig').volar.setup({
+            init_options = {
+              vue = {
+                hybridMode = false,
+              },
+            },
+          })
+        end,
         ts_ls = function()
           local lspconfig = require("lspconfig")
 
@@ -150,17 +161,7 @@ return {
                 },
               },
             },
-            filetypes = {
-              "javascript",
-              "javascriptreact",
-              "javascript.jsx",
-              "typescript",
-              "typescriptreact",
-              "typescript.tsx",
-              "vue",
-            },
           })
-          lspconfig.volar.setup({})
         end,
       },
     })

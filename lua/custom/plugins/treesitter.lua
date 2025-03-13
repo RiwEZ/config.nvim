@@ -9,6 +9,7 @@ return {
   config = function()
     -- Additional file types
     vim.treesitter.language.register("templ", "templ")
+    vim.treesitter.language.register("typespec", "typespec")
 
     -- Tree sitter
     require("nvim-treesitter")

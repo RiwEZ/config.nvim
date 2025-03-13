@@ -20,27 +20,34 @@ return {
       javascript = js_linters,
       typescript = js_linters,
       typescriptreact = js_linters,
-      python = { "pylint" },
+      -- python = { "pylint" },
       proto = { "buf" },
     }
 
     vim.api.nvim_create_autocmd(opts.events, {
       group = vim.api.nvim_create_augroup("nvim-lint", { clear = true }),
       callback = function()
-        lint.try_lint()
+        local client = vim.lsp.get_clients({ bufnr = 0 })[1] or {}
+        if client ~= {} then
+          lint.try_lint(nil, { cwd = client.root_dir })
+        else
+          lint.try_lint()
+        end
       end,
     })
 
     local lint_progress = function()
       local linters = lint.get_running()
       if #linters == 0 then
-        return "󰦕"
+        return "no linters"
       end
       return "󰦕 " .. table.concat(linters, ", ")
     end
 
+    -- linter debug keybind
     vim.keymap.set("n", "<leader>l", function()
-      lint.try_lint()
+      local client = vim.lsp.get_clients({ bufnr = 0 })[1] or {}
+      lint.try_lint(nil, { cwd = client.root_dir })
       print(lint_progress())
     end)
   end,
