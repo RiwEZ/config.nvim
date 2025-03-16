@@ -95,6 +95,7 @@ return {
         tab_char = "│",
       },
       scope = { enabled = false },
+      viewport_buffer = { min = 1000 },
       exclude = {
         filetypes = {
           "help",
