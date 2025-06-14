@@ -1,8 +1,17 @@
 return {
   "saghen/blink.cmp",
   lazy = false,
-  version = "v0.*",
+  version = "v1.*",
   dependencies = {
+    {
+      "folke/lazydev.nvim",
+      ft = "lua",
+      opts = {
+        library = {
+          { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+        },
+      },
+    },
     { "onsails/lspkind.nvim" },
     {
       "L3MON4D3/LuaSnip",
@@ -67,19 +76,17 @@ return {
       use_nvim_cmp_as_default = false,
       nerd_font_variant = 'mono'
     },
-    snippets = {
-      expand = function(snippet) require('luasnip').lsp_expand(snippet) end,
-      active = function(filter)
-        if filter and filter.direction then
-          return require('luasnip').jumpable(filter.direction)
-        end
-        return require('luasnip').in_snippet()
-      end,
-      jump = function(direction) require('luasnip').jump(direction) end,
-    },
+    snippets = { preset = 'luasnip' },
     sources = {
-      default = { 'lsp', 'path', 'luasnip', 'buffer' },
-      cmdline = {},
+      default = { 'lazydev', 'lsp', 'path', 'snippets', 'buffer' },
+      providers = { 
+        lazydev= {
+        name = "LazyDev",
+        module = "lazydev.integrations.blink",
+        -- make lazydev completions top priority (see `:h blink.cmp`)
+        score_offset = 100,
+        }
+      }
     },
   }
 }

@@ -1,12 +1,12 @@
-local js_fmt = { "biome", "prettierd", "prettier" }
+local js_fmt = { "prettierd", "prettier" }
 local formatters_by_ft = {
   lua = { "stylua" },
   javascript = js_fmt,
   typescript = js_fmt,
   typescriptreact = js_fmt,
   svelte = js_fmt,
-  vue = { "prettierd", "prettier" },
-  astro = { "prettierd", "prettier" },
+  vue = js_fmt,
+  astro = js_fmt,
   css = js_fmt,
   rust = { "rustfmt" },
   go = { "gofmt" },
@@ -22,7 +22,6 @@ return {
   "neovim/nvim-lspconfig",
   lazy = false,
   dependencies = {
-    { "folke/neodev.nvim",                opts = {} },
     { "williamboman/mason.nvim" },
     { "williamboman/mason-lspconfig.nvim" },
     {
@@ -58,8 +57,7 @@ return {
     { 'saghen/blink.cmp' }
   },
   config = function()
-    require("neodev").setup()
-
+    /*
     vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
       vim.lsp.handlers.hover,
       { border = 'rounded' }
@@ -68,6 +66,8 @@ return {
       vim.lsp.handlers.signature_help,
       { border = 'rounded' }
     )
+    */
+
     vim.diagnostic.config({
       float = {
         border = 'rounded'
@@ -75,11 +75,11 @@ return {
     })
 
     local lspconfig_defaults = require('lspconfig').util.default_config
-    lspconfig_defaults.capabilities = vim.tbl_deep_extend(
-      'force',
-      lspconfig_defaults.capabilities,
-      require('blink.cmp').get_lsp_capabilities(lspconfig_defaults.capabilities)
-    )
+    --lspconfig_defaults.capabilities = vim.tbl_deep_extend(
+    --  'force',
+    --  lspconfig_defaults.capabilities,
+    --  require('blink.cmp').get_lsp_capabilities(lspconfig_defaults.capabilities)
+    -- )
 
     vim.api.nvim_create_autocmd('LspAttach', {
       callback = function(event)
@@ -98,74 +98,45 @@ return {
 
     require("mason").setup({})
 
+    -- https://github.com/sveltejs/language-tools/issues/2008
+    local capabilities = lspconfig_defaults.capabilities
+
+    -- create a new capabilities with didChangeWatchedFiles that is not referenced from the lsp_zero one
+    local copied_capabilities = {}
+    for k, v in pairs(capabilities) do
+      if k == "workspace" then
+        local workspace = { didChangeWatchedFiles = false }
+        for _k, _v in pairs(capabilities[k]) do
+          if _k ~= "didChangeWatchedFiles" then
+            workspace[_k] = _v
+          end
+        end
+        copied_capabilities[k] = workspace
+      else
+        copied_capabilities[k] = v
+      end
+    end
+
+    vim.lsp.config('svelte', {
+      capabilities = copied_capabilities,
+    })
+
+
+    vim.lsp.config('denols', require('custom/lsp/denols'))
+    vim.lsp.config("ts_ls", require('custom/lsp/ts_ls'))
+
+
+    vim.lsp.enable({ 'denols', 'svelte' })
+    -- require('lspconfig').gleam.setup({})
+
     require("mason-lspconfig").setup({
+      automatic_enable = true,
       automatic_installation = false,
       ensure_installed = {
         "lua_ls",
         "rust_analyzer",
         "ts_ls",
-        "gopls",
-      },
-      handlers = {
-        function(server_name) -- default handler
-          require("lspconfig")[server_name].setup {}
-        end,
-        svelte = function()
-          -- https://github.com/sveltejs/language-tools/issues/2008
-          local capabilities = lspconfig_defaults.capabilities
-
-          -- create a new capabilities with didChangeWatchedFiles that is not referenced from the lsp_zero one
-          local copied_capabilities = {}
-          for k, v in pairs(capabilities) do
-            if k == "workspace" then
-              local workspace = { didChangeWatchedFiles = false }
-              for _k, _v in pairs(capabilities[k]) do
-                if _k ~= "didChangeWatchedFiles" then
-                  workspace[_k] = _v
-                end
-              end
-              copied_capabilities[k] = workspace
-            else
-              copied_capabilities[k] = v
-            end
-          end
-
-          require("lspconfig").svelte.setup({
-            capabilities = copied_capabilities,
-          })
-        end,
-        volar = function()
-          require('lspconfig').volar.setup({
-            init_options = {
-              vue = {
-                hybridMode = false,
-              },
-            },
-          })
-        end,
-        ts_ls = function()
-          local lspconfig = require("lspconfig")
-
-          local mason_registry = require("mason-registry")
-          local vue_language_server_path = mason_registry
-              .get_package("vue-language-server")
-              :get_install_path() .. "/node_modules/@vue/language-server"
-
-          lspconfig.ts_ls.setup({
-            init_options = {
-              plugins = {
-                {
-                  name = "@vue/typescript-plugin",
-                  location = vue_language_server_path,
-                  languages = { "vue" },
-                },
-              },
-            },
-          })
-        end,
       },
     })
-
-    require('lspconfig').gleam.setup({})
   end,
 }
